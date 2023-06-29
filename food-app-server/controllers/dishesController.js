@@ -84,8 +84,7 @@ const fetchDishes=async(req,res)=>{
 
 
 const editDish=async(req,res)=>{
-    const {dishId}=req.params;
-    const {dishName,price,catchPhrase,date,description,discount,classification,categories}=req.body;
+    const {dishName,price,catchPhrase,date,description,discount,classification,categories,dishId}=req.body;
     
     try{
     if(!dishId)return res.status(400).json({'message':'id is required'})

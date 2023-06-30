@@ -3,7 +3,7 @@ const cloudinary=require('../config/cloudinary')
 const dishes = require('../model/dishModel')
 
 const createDish=async(req,res)=>{
-    const {dishName,price,catchPhrase,date,description,discount,classification,categories}=req.body;
+    const {dishName,price,catchPhrase,date,description,discount,classification,category}=req.body;
 
    try{
         const response={secure_url:'',public_id:''}
@@ -19,7 +19,7 @@ const createDish=async(req,res)=>{
                 'dish_image_id':result.public_id,
                 'discount':discount,
                 'classification':classification,
-                'category':categories
+                'category':category
             }
         )
         return res.status(200).json({
@@ -28,7 +28,7 @@ const createDish=async(req,res)=>{
    }
    catch(err){
        console.log(err)
-   }
+   } 
 }
 
 

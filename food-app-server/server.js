@@ -24,6 +24,7 @@ app.use('/coupon', require('./routes/couponRoute'))
 app.use('/transaction', require('./routes/transactionRoute'))
 app.use('/newsletter', require('./routes/newsletterRoute'))
 app.use('/admin', require('./routes/adminRoute'))
+app.use('/customerprofile', require('./routes/customerProfile'))
 
 mongoose.connection.once("open",()=>{
     console.log("connected to mongodb");

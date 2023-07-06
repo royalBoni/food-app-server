@@ -1,6 +1,7 @@
 const mongoose=require('mongoose');
 const cloudinary=require('../config/cloudinary')
 const dishes = require('../model/dishModel')
+const admins = require('../model/adminModel')
 
 const createDish=async(req,res)=>{
     const {dishName,price,catchPhrase,date,description,discount,classification,category}=req.body;
@@ -31,46 +32,52 @@ const createDish=async(req,res)=>{
    } 
 }
 
-
-/* const deleteInspiration=async(req,res)=>{
-    const{inspirationID,userID}=req.params;
-    if(!inspirationID)return res.status(400).json({'message':'inspiration id is required'})
-    if(!userID)return res.status(400).json({'message':'user id is required'})
+const deleteDish=async(req,res)=>{
+    const{dishId,adminId}=req.params;
+    if(!dishId)return res.status(400).json({data:'dish id is required'})
+    if(!adminId)return res.status(400).json({data:'admin id is required'})
         try{
 
-        // checkimg whether inspiration provided is valid
-        if(!mongoose.Types.ObjectId.isValid(inspirationID)) return res.status(400).json({'message':'invalid id'})
+            // checking whether id provided is valid
+            if(!mongoose.Types.ObjectId.isValid(dishId)) return res.status(400).json({data:'invalid dish id'})
+            if(!mongoose.Types.ObjectId.isValid(adminId)) return res.status(400).json({data:'invalid admin id'})
 
-        //find user
-        const findInspiration=await dishes.findById(inspirationID);
+            //check whether admin is authorized to delete 
+            const findAdmin = await admins.findById(adminId)
+            if(findAdmin){
+                // deletion process after admin authorization is true
+                //find dish
+                const findDish=await dishes.findById(dishId);
+                
+
+                //checking whether there was a match.
+                if(!findDish){
+                    return res.status(404).json({data:`no dish matches id ${dishId}`})
+                }
+
+                else{
+                    //delete previous image from image cloud server when there is a mapping from the database
+                    findDish.dish_image_id? await cloudinary.uploader.destroy(findDish.dish_image_id):null;
+
+                    //deleting user from database
+                    await dishes.deleteOne({_id:dishId});
+                              
+                    res.status(201).json({data:`user with ${dishId} have been deleted`})
+                }
         
-
-        //checking whether there was a match.
-        if(!findInspiration){
-            return res.status(404).json({'message':`no inspiration matches id ${inspirationID}`})
-        }
-
-        else{
-            if(findInspiration.authorID===userID){
-                //delete previous image from image cloud server when there is a mapping from the database
-                findInspiration.inspiration_image_id? await cloudinary.uploader.destroy(findInspiration.inspiration_image_id):null;
-
-                //deleting user from database
-                await dishes.deleteOne({_id:inspirationID});
-                        
-                res.status(201).json({'message':`user with ${inspirationID} have been deleted`})
             }
+
             else{
-                return res.status(401).json({'message':`unauthorized to delete`})
+                return res.status(404).json({data:`unauthorize for this operation`})
             }
-        }
-       
+
+        
         }
         catch(err){
             console.log(err)
         }
 }
- */
+
 const fetchDishes=async(req,res)=>{
     try{
         const fetchedResult=await dishes.find();
@@ -87,7 +94,7 @@ const editDish=async(req,res)=>{
     const {dishName,price,catchPhrase,date,description,discount,classification,categories,dishId}=req.body;
     
     try{
-    if(!dishId)return res.status(400).json({'message':'id is required'})
+    if(!dishId)return res.status(400).json({data:'id is required'})
 
     // checkimg whether user provided id is valid
     if(!mongoose.Types.ObjectId.isValid(dishId)) return res.status(400).send('invalid id')
@@ -97,7 +104,7 @@ const editDish=async(req,res)=>{
     
     //checking whether there was a match.
     if(!findDish){
-    return res.status(404).json({'message':`no dish matches id ${dishId}`})
+    return res.status(404).json({data:`no dish matches id ${dishId}`})
     }
 
     const response={secure_url:findDish.dish_image_url,public_id:findDish.dish_image_id}
@@ -123,8 +130,6 @@ const editDish=async(req,res)=>{
         },
             {new:true}
         )
-        
-        console.log(dbResult)
             
     res.status(201).json({dbResult})
     }
@@ -137,5 +142,6 @@ const editDish=async(req,res)=>{
 module.exports={
     editDish,
     createDish,
-    fetchDishes
+    fetchDishes,
+    deleteDish
 }

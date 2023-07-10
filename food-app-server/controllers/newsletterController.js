@@ -206,7 +206,25 @@ const unSubscribeNewsletter = async(req,res)=>{
     
 }
 
+const checkNewsletterSubscription = async (req,res)=>{
+    const {email}= req.params
+    
+    try{
+        const isAlreadySubscribed = await newsletterSubscribers.findOne({email:email})
+        if(isAlreadySubscribed){
+            res.status(200).json({data:"subscribed"})
+        }
+        else{
+            res.status(401).json({data:"not subscribed"})
+        }
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
 module.exports={
     subscribeNewsletter,
-    unSubscribeNewsletter
+    unSubscribeNewsletter,
+    checkNewsletterSubscription
 }

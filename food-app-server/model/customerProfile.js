@@ -12,8 +12,13 @@ const customerProfileSchema = new Schema({
         type:String
     },
     customerId:{
-        type:String,
-        required:true
+        type:String
+    },
+    country:{
+        type:String
+    },
+    phoneNumber:{
+        type:String
     }
 })
 

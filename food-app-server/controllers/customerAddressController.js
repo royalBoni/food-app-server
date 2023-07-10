@@ -1,25 +1,28 @@
 const mongoose=require('mongoose');
 const cloudinary=require('../config/cloudinary')
-const profiles = require('../model/customerProfile')
+const addresses = require('../model/customerAddressModel')
 const customers = require('../model/customerModel')
 
-const createProfile=async(req,res)=>{
-    const {firstName,lastName, gender,customerId,country,phoneNumber}=req.body;
+const createAddress=async(req,res)=>{
+    const {firstName, lastName, phoneNumber, additionalPhoneNumber,address,additionalInfo,region,city,customerId}=req.body;
     if(!customerId)return res.status(400).json({data:'customer id is required'})
 
     try{
-        const newProfile= await profiles.create(
+        const newAddress= await addresses.create(
             {
                 'firstName':firstName,
                 'lastName':lastName,
-                'gender':gender,
+                'address':address,
                 'customerId':customerId,
-                'country':country,
-                'phoneNumber':phoneNumber
+                'region':region,
+                'city':city,
+                'additionalInfo':additionalInfo,
+                'phoneNumber':phoneNumber,
+                'additionalPhoneNumber':additionalPhoneNumber
             }
         )
         return res.status(200).json({
-            data:newProfile
+            data:newAddress
     });
    }
    catch(err){
@@ -27,13 +30,13 @@ const createProfile=async(req,res)=>{
    } 
 }
 
-const deleteProfile=async(req,res)=>{
-    const{profileId, customerId}=req.params;
-    if(!profileId)return res.status(400).json({data:'profile id is required'})
+const deleteAddress=async(req,res)=>{
+    const{addressId, customerId}=req.params;
+    if(!addressId)return res.status(400).json({data:'address id is required'})
     if(!customerId)return res.status(400).json({data:'customer id is required'})
         try{
             // checking whether id provided is valid
-            if(!mongoose.Types.ObjectId.isValid(profileId)) return res.status(400).json({data:'invalid profile id'})
+            if(!mongoose.Types.ObjectId.isValid(addressId)) return res.status(400).json({data:'invalid address id'})
             if(!mongoose.Types.ObjectId.isValid(customerId)) return res.status(400).json({data:'invalid customer id'})
 
             //check whether customer is authorized to delete 
@@ -41,19 +44,19 @@ const deleteProfile=async(req,res)=>{
             if(findCustomer){
                 // deletion process after customer authorization is true
                 //find profile
-                const findProfile=await profiles.findById(profileId);
+                const findAddress=await addresses.findById(addressId);
                 
 
                 //checking whether there was a match.
-                if(!findProfile){
-                    return res.status(404).json({data:`no profile matches id ${profileId}`})
+                if(!findAddress){
+                    return res.status(404).json({data:`no address matches id ${addressId}`})
                 }
 
                 else{
                     //deleting user from database
-                    await profiles.deleteOne({_id:profileId});
+                    await addresses.deleteOne({_id:addressId});
                               
-                    res.status(201).json({data:`profile with ${profileId} have been deleted`})
+                    res.status(201).json({data:`address with ${addressId} have been deleted`})
                 }
         
             }
@@ -69,71 +72,60 @@ const deleteProfile=async(req,res)=>{
         }
 }
 
-const fetchProfiles=async(req,res)=>{
-    try{
-        const fetchedResult=await profiles.find();
-        return res.status(200).json({data:fetchedResult})
-    }
-    catch(err){
-        console.log(err)
-    }
-
-}
-
-const fetchCustomerProfile=async(req,res)=>{
-
+const fetchAllAddress=async(req,res)=>{
     const{customerId}=req.params;
     if(!customerId)return res.status(400).json({data:'customer id is required'})
-
     try{
-        if(!mongoose.Types.ObjectId.isValid(customerId)) return res.status(400).json({data:'invalid customer id'})
-        const fetchedResult=await profiles.findOne({customerId:customerId});
-        if(fetchedResult){
+        const fetchedResult=await addresses.find({customerId:customerId});
+        if(fetchedResult.length>0){
             return res.status(200).json({data:fetchedResult})
         }
         else{
-            return res.status(404).json({data:`no customer matches id ${profileId}`})
+            return res.status(405).json({data:'no address found'})
         }
         
     }
     catch(err){
         console.log(err)
     }
+
 }
 
 
-
-const editProfile=async(req,res)=>{
-    const {firstName,lastName, gender,customerId,profileId,country,phoneNumber}=req.body;
+const editAddress=async(req,res)=>{
+    const {firstName, lastName, phoneNumber, additionalPhoneNumber,address,additionalInfo,region,city,customerId,addressId}=req.body;
     if(!customerId)return res.status(400).json({data:'customer id is required'})
-    if(!profileId)return res.status(400).json({data:'profile id is required'})
+    if(!addressId)return res.status(400).json({data:'address id is required'})
     try{
         // checking whether ids provided are valid
         if(!mongoose.Types.ObjectId.isValid(customerId)) return res.status(400).send('invalid customer id')
-        if(!mongoose.Types.ObjectId.isValid(profileId)) return res.status(400).send('invalid profile id')
+        if(!mongoose.Types.ObjectId.isValid(addressId)) return res.status(400).send('invalid address id')
 
         //checking for authorization for carrying out operation
         const isAuthorized = await customers.findById(customerId)
 
         if(isAuthorized){
             //find profile
-            const findProfile=await profiles.findById(profileId);
+            const findAddress=await addresses.findById(addressId);
             
             //checking whether there was a match.
-            if(!findProfile){
-                return res.status(404).json({data:`no profile matches id ${profileId}`})
+            if(!findAddress){
+                return res.status(404).json({data:`no address matches id ${addressId}`})
             }
             
             //update 
-            const dbResult=await profiles.findByIdAndUpdate(profileId,{
+            const dbResult=await addresses.findByIdAndUpdate(addressId,{
                 'firstName':firstName,
                 'lastName':lastName,
-                'gender':gender,
+                'address':address,
                 'customerId':customerId,
-                'country':country,
-                'phoneNumber':phoneNumber
+                'region':region,
+                'city':city,
+                'additionalInfo':additionalInfo,
+                'phoneNumber':phoneNumber,
+                'additionalPhoneNumber':additionalPhoneNumber
                     
-                },
+            },
                     {new:true}
                 )
                     
@@ -151,9 +143,8 @@ const editProfile=async(req,res)=>{
 }
 
 module.exports={
-    editProfile,
-    createProfile,
-    fetchProfiles,
-    deleteProfile,
-    fetchCustomerProfile
+    editAddress,
+    createAddress,
+    fetchAllAddress,
+    deleteAddress
 }

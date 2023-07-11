@@ -8,23 +8,56 @@ const createProfile=async(req,res)=>{
     if(!customerId)return res.status(400).json({data:'customer id is required'})
 
     try{
-        const newProfile= await profiles.create(
-            {
-                'firstName':firstName,
-                'lastName':lastName,
-                'gender':gender,
-                'customerId':customerId,
-                'country':country,
-                'phoneNumber':phoneNumber
+        const isProfileExist=await profiles.findOne({customerId:customerId});
+        if(isProfileExist){
+            return res.status(200).json({data:isProfileExist})
+        }
+
+        else{
+            const newProfile= await profiles.create(
+                {
+                    'firstName':firstName,
+                    'lastName':lastName,
+                    'gender':gender,
+                    'customerId':customerId,
+                    'country':country,
+                    'phoneNumber':phoneNumber
+                }
+            )
+            return res.status(200).json({
+                data:newProfile
+                });
+        }
+
+    }
+    catch(err){
+        console.log(err)
+    }
+
+   /*  const isProfileExist=await profiles.findOne({customerId:customerId});
+        if(isProfileExist){
+            return res.status(200).json({data:isProfileExist})
+        }
+        else{
+            try{
+                const newProfile= await profiles.create(
+                    {
+                        'firstName':firstName,
+                        'lastName':lastName,
+                        'gender':gender,
+                        'customerId':customerId,
+                        'country':country,
+                        'phoneNumber':phoneNumber
+                    }
+                )
+                return res.status(200).json({
+                    data:newProfile
+                    });
             }
-        )
-        return res.status(200).json({
-            data:newProfile
-    });
-   }
-   catch(err){
-       console.log(err)
-   } 
+            catch(err){
+               console.log(err)
+            } 
+        } */
 }
 
 const deleteProfile=async(req,res)=>{
@@ -92,7 +125,7 @@ const fetchCustomerProfile=async(req,res)=>{
             return res.status(200).json({data:fetchedResult})
         }
         else{
-            return res.status(404).json({data:`no customer matches id ${profileId}`})
+            return res.status(404).json({data:`no customer matches id ${customerId}`})
         }
         
     }

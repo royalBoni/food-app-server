@@ -4,7 +4,7 @@ const profiles = require('../model/customerProfile')
 const customers = require('../model/customerModel')
 
 const createProfile=async(req,res)=>{
-    const {firstName,lastName, gender,customerId,country,phoneNumber}=req.body;
+    const {firstName,lastName, genderInput,customerId,countryInput,phoneNumber}=req.body;
     if(!customerId)return res.status(400).json({data:'customer id is required'})
 
     try{
@@ -18,9 +18,9 @@ const createProfile=async(req,res)=>{
                 {
                     'firstName':firstName,
                     'lastName':lastName,
-                    'gender':gender,
+                    'gender':genderInput,
                     'customerId':customerId,
-                    'country':country,
+                    'country':countryInput,
                     'phoneNumber':phoneNumber
                 }
             )
@@ -137,7 +137,7 @@ const fetchCustomerProfile=async(req,res)=>{
 
 
 const editProfile=async(req,res)=>{
-    const {firstName,lastName, gender,customerId,profileId,country,phoneNumber}=req.body;
+    const {firstName,lastName, genderInput,customerId,profileId,countryInput,phoneNumber}=req.body;
     if(!customerId)return res.status(400).json({data:'customer id is required'})
     if(!profileId)return res.status(400).json({data:'profile id is required'})
     try{
@@ -161,9 +161,9 @@ const editProfile=async(req,res)=>{
             const dbResult=await profiles.findByIdAndUpdate(profileId,{
                 'firstName':firstName,
                 'lastName':lastName,
-                'gender':gender,
+                'gender':genderInput,
                 'customerId':customerId,
-                'country':country,
+                'country':countryInput,
                 'phoneNumber':phoneNumber
                     
                 },

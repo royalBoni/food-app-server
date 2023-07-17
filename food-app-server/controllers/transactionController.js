@@ -41,8 +41,8 @@ const createTransaction = async(req,res)=>{
     const cartItemArray=(item)=>{
       let itemList =[];
       item.map((mappedItem)=>{
-        const mappedItemObject= {dishId:mappedItem.dishId, quantity:mappedItem.quantity,discount:mappedItem.discount}
-        itemList.push(mappedItemObject)
+        /* const mappedItemObject= {dishId:mappedItem.dishId, quantity:mappedItem.quantity,discount:mappedItem.discount,orderId:mappedItem._id} */
+        itemList.push(mappedItem)
         return true
       })
       return itemList
@@ -121,7 +121,25 @@ const createTransaction = async(req,res)=>{
     }
 }
 
+const fetchCustomerTransaction=async(req,res)=>{
+  const {customerId} = req.params
+  if(!customerId) res.status(400).json({data:'customer id is required'}) 
+
+  try{
+      // checkimg whether order Id provided is valid
+     if(!mongoose.Types.ObjectId.isValid(customerId)) return res.status(400).json({data:'invalid id'}) 
+      const fetchedResult=await transactions.find({customerId:customerId});
+      return res.status(200).json({data:fetchedResult})
+      
+  }
+  catch(err){
+      console.log(err)
+  }
+
+}
+
 module.exports={
     fetchAllTransactions,
-    createTransaction
+    createTransaction,
+    fetchCustomerTransaction
 }

@@ -88,6 +88,7 @@ const createTransaction = async(req,res)=>{
                   'amountPayable':paymentInfoObject.amountPayable,
                   'date':new Date(),
                   'couponCode':paymentInfoObject.couponInput,
+                  'couponRate':paymentInfoObject.couponRate,
                   'transactionId':transactionID,
                   'cartItems':cartItemArray(await orders.find({customerId:paymentInfoObject.customerId}))
               }

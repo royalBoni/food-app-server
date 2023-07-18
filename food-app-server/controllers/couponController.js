@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const {nanoid} = require('nanoid')
 
 const createCoupon=async(req,res)=>{
-    const {value,date,adminId}=req.body;
+    const {value,adminId}=req.body;
     const code = nanoid()
 
    try{
@@ -11,7 +11,7 @@ const createCoupon=async(req,res)=>{
             {
                 'code':code,
                 'value':value,
-                'date':date,
+                'date':new Date(),
                 'adminId':adminId
             }
         )

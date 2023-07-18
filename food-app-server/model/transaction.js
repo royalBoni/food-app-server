@@ -17,6 +17,9 @@ const transactionSchema = new Schema({
     couponCode:{
         type:String
     },
+    couponRate:{
+        type:Number
+    },
     transactionId:{
         type:String,
         required:true

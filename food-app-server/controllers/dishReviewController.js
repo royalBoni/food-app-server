@@ -61,6 +61,23 @@ const deleteDishReview=async(req,res)=>{
         }
 }
 
+const fetchDishReviewsById=async(req,res)=>{
+    const {userId} = req.params
+    if(!userId) res.status(400).json({data:'user id is required'}) 
+
+    try{
+        // checkimg whether order Id provided is valid
+       if(!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).json({data:'invalid id'}) 
+        const fetchedResult=await dishReviews.find({userId:userId});
+        return res.status(200).json({data:fetchedResult})
+        
+    }
+    catch(err){
+        console.log(err)
+    }
+
+}
+
 
 const fetchDishReviews=async(req,res)=>{
     try{
@@ -79,5 +96,6 @@ const fetchDishReviews=async(req,res)=>{
 module.exports={
     createDishReview,
     fetchDishReviews,
-    deleteDishReview
+    deleteDishReview,
+    fetchDishReviewsById
 }

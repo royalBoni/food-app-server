@@ -2,7 +2,7 @@ const dishReviews = require('../model/dishReviewModel')
 const mongoose = require('mongoose')
 
 const createDishReview=async(req,res)=>{
-    const {userName,userEmail,userId,date,review,dishId}=req.body;
+    const {userName,userEmail,userId,date,review,dishId,rate}=req.body;
 
    try{
         const newDishReview= await dishReviews.create(
@@ -12,7 +12,8 @@ const createDishReview=async(req,res)=>{
                 'userId':userId,
                 'date':date,
                 'review':review,
-                'dishId':dishId
+                'dishId':dishId,
+                'rate':rate
             }
         )
         return res.status(200).json({

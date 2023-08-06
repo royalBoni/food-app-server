@@ -14,6 +14,9 @@ const dishReviewSchema = new Schema({
     review:{
         type:String
     },
+    rate:{
+        type:Number
+    },
     date:{
         type:String
     },

@@ -165,9 +165,9 @@ const editTransaction=async(req,res)=>{
         }
         else{
           //update 
-          const dbResult=await orders.findByIdAndUpdate(findRecord._id,{
-            'purchaseStaus':status,
-            'purchaseStausDate':date 
+          const dbResult=await transactions.findByIdAndUpdate(findRecord._id,{
+            'purchaseStatus':status,
+            'purchaseStatusDate':date 
             },
             {new:true}
           )

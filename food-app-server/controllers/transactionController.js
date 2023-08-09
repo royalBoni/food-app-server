@@ -90,9 +90,12 @@ const createTransaction = async(req,res)=>{
                   'couponCode':paymentInfoObject.couponInput,
                   'couponRate':paymentInfoObject.couponRate,
                   'transactionId':transactionID,
-                  'cartItems':cartItemArray(await orders.find({customerId:paymentInfoObject.customerId}))
+                  'cartItems':cartItemArray(await orders.find({customerId:paymentInfoObject.customerId})),
+                  'purchaseStaus':'Payment Made',
+                  'purchaseStatusDate':new Date()
               }
-          ).then(async savedTransaction=>{
+          )
+          .then(async savedTransaction=>{
             await coupons.findOneAndDelete({code:savedTransaction.couponCode}).then(async()=>{
               await orders.deleteMany({customerId:paymentInfoObject.customerId})
               res.status(200).json({data: await transactions.findOne({transactionId:transactionID})})
@@ -139,8 +142,53 @@ const fetchCustomerTransaction=async(req,res)=>{
 
 }
 
+const editTransaction=async(req,res)=>{
+  const {adminId}=req.params;
+  const {status,recordId,date}=req.body;
+  
+  try{
+      if(!adminId)return res.status(400).json({'message':'admin id is required'})
+      if(!recordId)return res.status(400).json({'message':'record id is required'})
+
+      // checkimg whether order provided id is valid
+      if(!mongoose.Types.ObjectId.isValid(adminId)) return res.status(400).send('invalid admin id')
+      if(!mongoose.Types.ObjectId.isValid(recordId)) return res.status(400).send('invalid record id')
+
+      const isAdmin = await admin.findById(adminId)
+      if(isAdmin){
+        //find record
+        const findRecord=await transactions.findById(recordId);
+        
+        //checking whether there was a match.
+        if(!findRecord){
+          return res.status(404).json({'message':`no record matches id ${recordId}`})
+        }
+        else{
+          //update 
+          const dbResult=await orders.findByIdAndUpdate(findRecord._id,{
+            'purchaseStaus':status,
+            'purchaseStausDate':date 
+            },
+            {new:true}
+          )
+        res.status(201).json({data:dbResult}) 
+        }
+        
+      }
+      else{
+        return res.status(401).json({data:'unauthorized request'})
+      }
+  }
+  catch(err){
+      console.log(err)
+  }
+
+}
+
+
 module.exports={
     fetchAllTransactions,
     createTransaction,
-    fetchCustomerTransaction
+    fetchCustomerTransaction,
+    editTransaction
 }

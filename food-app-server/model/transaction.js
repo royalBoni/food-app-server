@@ -31,6 +31,12 @@ const transactionSchema = new Schema({
     cartItems:{
         type:Array,
     },
+    purchaseStatus:{
+        type:String
+    },
+    purchaseStatusDate:{
+        type:String
+    }
 })
 
 

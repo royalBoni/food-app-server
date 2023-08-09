@@ -2,6 +2,7 @@ const mongoose=require('mongoose');
 const cloudinary=require('../config/cloudinary')
 const addresses = require('../model/customerAddressModel')
 const customers = require('../model/customerModel')
+const admin = require('../model/adminModel')
 
 const createAddress=async(req,res)=>{
     const {firstName, lastName, phoneNumber, additionalPhoneNumber,address,additionalInfo,region,city,customerId}=req.body;
@@ -142,9 +143,31 @@ const editAddress=async(req,res)=>{
 
 }
 
+const fetchAdminAllAddress = async(req,res)=>{
+    const {adminId} = req.params
+    if(!adminId) return res.status(400).json({data:'admin Id is required'})
+    if(!mongoose.Types.ObjectId.isValid(adminId)) return res.status(400).json({data:'id is invalid'})
+    try{
+        const isAdmin = await admin.findById(adminId)
+        if(isAdmin){
+          const fetchedResult=await addresses.find();
+          return res.status(200).json({data:fetchedResult})
+        }
+        else{
+          return res.status(401).json({data:'unauthorized request'})
+        }
+        
+    }
+    catch(err){
+        console.log(err)
+    }
+  
+  }
+
 module.exports={
     editAddress,
     createAddress,
     fetchAllAddress,
-    deleteAddress
+    deleteAddress,
+    fetchAdminAllAddress
 }
